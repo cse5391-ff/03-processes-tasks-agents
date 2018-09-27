@@ -33,8 +33,10 @@ defmodule Ex03 do
   the process count, and then run each chunk through a regular map
   function, but with each map running in a separate process.
 
-  Useful functions include `Enum.count/1`, `Enum.chunk/4` and
+  Useful functions include `Enum.count/1`, `Enum.chunk_every/4` and
  `Enum.concat/1`.
+
+ (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
 
   ------------------------------------------------------------------
   ## Marks available: 30
@@ -44,7 +46,7 @@ defmodule Ex03 do
         5	does it produce the correct results on any valid data
 
       Tested
-      if tests are provided as part of the assignment: 	
+      if tests are provided as part of the assignment:
         5	all pass
 
       Aesthetics
@@ -96,5 +98,5 @@ defmodule TestEx03 do
     assert result2 == result1
     assert time2 < time1 * 0.8
   end
-  
+
 end
