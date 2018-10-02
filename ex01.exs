@@ -27,6 +27,10 @@ defmodule Ex01 do
           blank lines, vertical alignment
   """
 
+  def new_counter(value \\ 0) do
+    spawn_link(__MODULE__, :counter, [value])
+  end
+
   def counter(value \\ 0) do
     receive do
       {:next, from} ->
