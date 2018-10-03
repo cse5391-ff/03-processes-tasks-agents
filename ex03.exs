@@ -1,5 +1,5 @@
 defmodule Ex03 do
-
+  use Task
   @moduledoc """
 
   `Enum.map` takes a collection, applies a function to each element in
@@ -34,9 +34,9 @@ defmodule Ex03 do
   function, but with each map running in a separate process.
 
   Useful functions include `Enum.count/1`, `Enum.chunk_every/4` and
- `Enum.concat/1`.
+  `Enum.concat/1`.
 
- (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
+    (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
 
   ------------------------------------------------------------------
   ## Marks available: 30
@@ -61,10 +61,31 @@ defmodule Ex03 do
 
   """
 
+  # 1) Divide list into even chunks
+  # 2) Spawn processes to handle each Enum.map
+  # 3) Wait for responses
+  # 4) Combine with concat
   def pmap(collection, process_count, function) do
-    « your code here »
+    sublist_size = Enum.count(collection)/process_count |> Kernel.trunc
+
+    collection
+      |> Enum.into([])
+      |> Enum.chunk_every(sublist_size)
+      |> process_chunk_tasks(function)
+      |> Enum.concat
   end
 
+  # Spawns concurrent tasks to handle Enum.map for each chunk and
+  # waits for all responses until returning list
+  defp process_chunk_tasks(collection, function) do
+    collection
+      |> Enum.map(fn chunk -> Task.async(__MODULE__, :map_each, [function, chunk]) end)
+      |> Enum.map(fn task -> Task.await(task) end)
+  end
+
+  def map_each(function, list) do
+    Enum.map(list, function)
+  end
 end
 
 
