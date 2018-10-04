@@ -65,6 +65,7 @@ defmodule Ex03 do
   # One of them is yours from O'reilly. Just wanted to list all my resources.
   # https://elixir-recipes.github.io/concurrency/parallel-map/
   # https://www.oreilly.com/library/view/programming-elixir/9781680500530/f_0139.html
+  # http://nathanmlong.com/2014/07/pmap-in-elixir/
 
   @doc """
   1. Separate the collection into n chunks
@@ -83,7 +84,7 @@ defmodule Ex03 do
     |> Enum.concat()
   end
 
-  # |> Enum.map( fn task -> Task.await(task) end)
+  # Wrapper funcitons
 
   @spec handle_task(list(), fun()) :: any()
   defp handle_task(list, func) do

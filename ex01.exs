@@ -37,9 +37,6 @@ defmodule Ex01 do
     spawn Ex01, :counter, [value]
   end
 
-  @doc """
-  get the next value
-  """
   @spec next_value(pid()) :: integer()
   def next_value(count) do
     send count, {:next, self()}
@@ -53,9 +50,6 @@ defmodule Ex01 do
 
   # Implementation
 
-  @doc """
-  Takes integer as param and makes tail call
-  """
   @spec counter(integer()) :: (integer() -> fun())
   def counter(value \\ 0) do
     receive do
@@ -63,7 +57,6 @@ defmodule Ex01 do
         send from, {:next_is, value}
     end
 
-    # Tail Recursion
     value + 1 |> counter()
   end
 

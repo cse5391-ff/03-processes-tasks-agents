@@ -30,7 +30,7 @@ defmodule Ex02 do
   """
   @spec new_global_counter(integer()) :: pid()
   def new_global_counter(value \\ 0) do
-    { :ok, counter } = Agent.start_link(fn -> value end, name: :new_pid)
+    { :ok, counter } = Agent.start_link(fn -> value end, name: :pid_name)
     counter
   end
 
@@ -39,7 +39,7 @@ defmodule Ex02 do
   """
   @spec global_next_value() :: (-> integer())
   def global_next_value() do
-    :new_pid
+    :pid_name
     |> next_value()
   end
 
