@@ -37,7 +37,7 @@ defmodule Ex02 do
   @doc """
   actually, just call the next_value with the process's name
   """
-  @spec global_next_value() :: (-> integer())
+  @spec global_next_value() :: (pid() -> integer())
   def global_next_value() do
     :pid_name
     |> next_value()

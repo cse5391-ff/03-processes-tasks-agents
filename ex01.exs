@@ -93,13 +93,6 @@ defmodule Test do
     assert  Ex01.next_value(count) == 6
   end
 
-  test "API test for default value" do
-    count = Ex01.new_counter()
-    assert  Ex01.next_value(count) == 0
-    assert  Ex01.next_value(count) == 1
-  end
-
-
 end
 
 
