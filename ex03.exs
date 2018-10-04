@@ -68,9 +68,9 @@ defmodule Ex03 do
   # http://nathanmlong.com/2014/07/pmap-in-elixir/
 
   @doc """
-  1. Separate the collection into n chunks
-  2. Put them in Task.async to be awaited
-  3. In each async, put the chunked tasks through regular Enum.map
+  1. Separate the collection into chunks
+  2. Use Task for individual process
+  3. Put the chunked tasks through regular Enum.map
   4. Once all asyncs have replied, concat the results into one list
 
   TODO: Just observe those pipelines and admire the bliss and awe that is functional programming

@@ -22,18 +22,13 @@ defmodule Ex02 do
     {x, x+1}
   end
 
-  @spec init(any()) :: {:ok, any()}
-  def init(args) do
-    {:ok, args}
-  end
-
-    # Global API
+  # Global API
 
   @doc """
   how can you arrange things so that you don't need to pass
   that agent into calls to `global_next_value`?
 
-  I can name the process and just get next value by get_and_update(name, fn)?
+  specify name for get_and_update(name, fn)
   """
   @spec new_global_counter(integer()) :: pid()
   def new_global_counter(value \\ 0) do
@@ -42,7 +37,7 @@ defmodule Ex02 do
   end
 
   @doc """
-  actually, just call the next_value with the process's name
+  call next_value with the process's name
   """
   @spec global_next_value() :: (pid() -> integer())
   def global_next_value() do
