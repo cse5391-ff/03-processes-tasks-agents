@@ -1,7 +1,6 @@
 
 defmodule Ex02 do
 
-  use GenServer
   @pid_name __MODULE__
 
   # API
