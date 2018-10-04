@@ -29,9 +29,6 @@ defmodule Ex01 do
 
   # API
 
-  @doc """
-  new() function to spawn process
-  """
   @spec new_counter(integer()) :: pid()
   def new_counter(value \\ 0) do
     spawn Ex01, :counter, [value]
