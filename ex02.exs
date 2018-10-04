@@ -1,24 +1,32 @@
 
 defmodule Ex02 do
 
-    # API
+  use GenServer
+  @pid_name __MODULE__
 
-    @spec new_counter(integer()) :: pid()
-    def new_counter(value \\ 0) do
-      { :ok, counter } = Agent.start_link(fn -> value end)
-      counter
-    end
+  # API
 
-    @spec next_value(pid()) :: integer()
-    def next_value(counter) do
-      counter
-      |> Agent.get_and_update(&get_next &1)
-    end
+  @spec new_counter(integer()) :: pid()
+  def new_counter(value \\ 0) do
+    { :ok, counter } = Agent.start_link(fn -> value end)
+    counter
+  end
 
-    @spec get_next(integer()) :: {integer(), integer()}
-    defp get_next(x) do
-      {x, x+1}
-    end
+  @spec next_value(pid()) :: integer()
+  def next_value(counter) do
+    counter
+    |> Agent.get_and_update(&get_next &1)
+  end
+
+  @spec get_next(integer()) :: {integer(), integer()}
+  defp get_next(x) do
+    {x, x+1}
+  end
+
+  @spec init(any()) :: {:ok, any()}
+  def init(args) do
+    {:ok, args}
+  end
 
     # Global API
 
@@ -30,7 +38,7 @@ defmodule Ex02 do
   """
   @spec new_global_counter(integer()) :: pid()
   def new_global_counter(value \\ 0) do
-    { :ok, counter } = Agent.start_link(fn -> value end, name: :pid_name)
+    { :ok, counter } = Agent.start_link(fn -> value end, name: @pid_name)
     counter
   end
 
@@ -39,7 +47,7 @@ defmodule Ex02 do
   """
   @spec global_next_value() :: (pid() -> integer())
   def global_next_value() do
-    :pid_name
+    @pid_name
     |> next_value()
   end
 
