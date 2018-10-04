@@ -15,6 +15,29 @@ defmodule Ex02 do
       |> Agent.get_and_update(fn x -> {x, x+1} end)
     end
 
+    # Global API
+
+  @doc """
+  how can you arrange things so that you don't need to pass
+  that agent into calls to `global_next_value`?
+
+  I can name the process and just get next value by get_and_update(name, fn)?
+  """
+  @spec new_global_counter(integer()) :: pid()
+  def new_global_counter(value \\ 0) do
+    { :ok, counter } = Agent.start_link(fn -> value end, name: :new_pid)
+    counter
+  end
+
+  @doc """
+  actually, just call the next_value with the process's name
+  """
+  @spec global_next_value() :: (-> integer())
+  def global_next_value() do
+    :new_pid
+    |> next_value()
+  end
+
 end
 
 ExUnit.start()
@@ -76,12 +99,12 @@ defmodule Test do
   that agent into calls to `global_next_value`?
   """
 
-  # test "global counter" do
-  #   Ex02.new_global_counter
-  #   assert Ex02.global_next_value == 0
-  #   assert Ex02.global_next_value == 1
-  #   assert Ex02.global_next_value == 2
-  # end
+  test "global counter" do
+    Ex02.new_global_counter()
+    assert Ex02.global_next_value() == 0
+    assert Ex02.global_next_value() == 1
+    assert Ex02.global_next_value() == 2
+  end
 end
 
 
