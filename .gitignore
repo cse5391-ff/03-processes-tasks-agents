@@ -1,0 +1,5 @@
+# exclude test file
+*.beam
+
+# test script
+runalltest.sh
