@@ -12,7 +12,12 @@ defmodule Ex02 do
     @spec next_value(pid()) :: integer()
     def next_value(counter) do
       counter
-      |> Agent.get_and_update(fn x -> {x, x+1} end)
+      |> Agent.get_and_update(&get_next &1)
+    end
+
+    @spec get_next(integer()) :: {integer(), integer()}
+    defp get_next(x) do
+      {x, x+1}
     end
 
     # Global API

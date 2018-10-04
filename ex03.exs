@@ -61,8 +61,38 @@ defmodule Ex03 do
 
   """
 
+  # In process of researching more about pmap, I came across these code bases.
+  # One of them is yours from O'reilly. Just wanted to list all my resources.
+  # https://elixir-recipes.github.io/concurrency/parallel-map/
+  # https://www.oreilly.com/library/view/programming-elixir/9781680500530/f_0139.html
+
+  @doc """
+  1. Separate the collection into n chunks
+  2. Put them in Task.async to be awaited
+  3. In each async, put the chunked tasks through regular Enum.map
+  4. Once all asyncs have replied, concat the results into one list
+
+  TODO: Just observe those pipelines and admire the bliss and awe that is functional programming
+  """
+  @spec pmap(list(), integer(), fun()) :: list()
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection
+    |> Enum.chunk_every(process_count)
+    |> Enum.map(&handle_task &1, function)
+    |> Enum.map(&await_task &1)
+    |> Enum.concat()
+  end
+
+  # |> Enum.map( fn task -> Task.await(task) end)
+
+  @spec handle_task(list(), fun()) :: any()
+  defp handle_task(list, func) do
+    Task.async(fn -> Enum.map(list, func) end)
+  end
+
+  @spec await_task(any()) :: any()
+  defp await_task(task) do
+    Task.await(task)
   end
 
 end
