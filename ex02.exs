@@ -1,34 +1,39 @@
 
 defmodule Ex02 do
 
-  ### Counter API ###
+  @me = __MODULE__
+
+  ### API ###
 
   def new_counter(initial_value \\ 0) do
-
-    { :ok, counter } = fn -> initial_value end |> Agent.start_link()
-
-    counter
-
+    initial_value 
+    |> make_counter(:standard)
   end
 
-  def next_value(counter) do
+  def new_global_counter(initial_value \\ 0) do
+    initial_value 
+    |> make_counter(:global)
+  end
 
-    get_and_increment_val = fn current_val -> { current_val, current_val + 1 } end 
-    
+  def next_value(counter) do 
     counter 
-    |> Agent.get_and_update(get_and_increment_val)
-
-  end
-
-  ### Global Counter ###
-
-  def new_global_counter() do
-
+    |> Agent.get_and_update( &{ &1, &1+1 } )
   end
 
   def global_next_value() do
-
+    @me 
+    |> next_value()
   end
+
+  ### Implementation ###
+
+  defp make_counter(value, type) do
+    { :ok, counter } = start_link(value, type)
+    counter
+  end
+
+  defp start_link(value, :standard), do: Agent.start_link(fn -> value end)
+  defp start_link(value,  :global ), do: Agent.start_link(fn -> value end, name: @me)
 
 end
 
@@ -86,9 +91,12 @@ defmodule Test do
   """
 
   test "higher level API interface" do
+
     count = Ex02.new_counter(5)
+
     assert  Ex02.next_value(count) == 5
     assert  Ex02.next_value(count) == 6
+
   end
 
   @doc """
@@ -99,12 +107,15 @@ defmodule Test do
   """
 
   test "global counter" do
+
     Ex02.new_global_counter
+
     assert Ex02.global_next_value == 0
     assert Ex02.global_next_value == 1
     assert Ex02.global_next_value == 2
+
   end
-  
+
 end
 
 
