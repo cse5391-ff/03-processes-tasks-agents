@@ -1,8 +1,6 @@
 
 defmodule Ex02 do
 
-  @me = __MODULE__
-
   ### API ###
 
   def new_counter(initial_value \\ 0) do
@@ -21,19 +19,21 @@ defmodule Ex02 do
   end
 
   def global_next_value() do
-    @me 
+    __MODULE__ 
     |> next_value()
   end
 
   ### Implementation ###
 
-  defp make_counter(value, type) do
+  defp make_counter(value, type) 
+    when type in [:standard, :global]
+  do
     { :ok, counter } = start_link(value, type)
     counter
   end
 
   defp start_link(value, :standard), do: Agent.start_link(fn -> value end)
-  defp start_link(value,  :global ), do: Agent.start_link(fn -> value end, name: @me)
+  defp start_link(value,  :global ), do: Agent.start_link(fn -> value end, name: __MODULE__)
 
 end
 
