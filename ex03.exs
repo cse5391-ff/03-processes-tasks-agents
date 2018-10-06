@@ -62,7 +62,17 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection                       # [1, 2, 3, 4, 5, 6] 
+    |> enum_to_chunks(process_count) # [[1, 2], [3, 4], [5, 6]]
+    |> split_maps(function)          # map([1,2]) ; map([3,4]) ; map([5,6])
+  end
+
+  defp enum_to_chunks(collection, process_count) do
+    Enum.count()
+  end
+
+  defp split_maps(split_collection, map_func) do
+
   end
 
 end
