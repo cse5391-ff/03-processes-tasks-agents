@@ -1,0 +1,8 @@
+# exclude test file
+*.beam
+
+# test script
+runalltest.sh
+
+# question for this assignment
+pr.md
