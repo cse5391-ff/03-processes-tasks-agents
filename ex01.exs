@@ -28,28 +28,27 @@ defmodule Ex01 do
   # API
 
   def new_counter(value \\ 0) do
-    spawn Ex01, :counter, [value]
+    spawn(Ex01, :counter, [value])
   end
 
   def next_value(count) do
-    send count, { :next, self() }
+    send(count, {:next, self()})
 
     receive do
       {:next_is, value} ->
         value
     end
-
   end
 
   # Implementation
 
   def counter(value \\ 0) do
     receive do
-      { :next, from } ->
-        send from, { :next_is, value }
+      {:next, from} ->
+        send(from, {:next_is, value})
     end
 
-    counter value + 1
+    counter(value + 1)
   end
 end
 
@@ -63,16 +62,18 @@ defmodule Test do
   # and which handles the `{:next, from}` message
 
   test "basic message interface" do
-    count = spawn Ex01, :counter, []
-    send count, { :next, self() }
+    count = spawn(Ex01, :counter, [])
+    send(count, {:next, self()})
+
     receive do
-      { :next_is, value } ->
+      {:next_is, value} ->
         assert value == 0
     end
 
-    send count, { :next, self() }
+    send(count, {:next, self()})
+
     receive do
-      { :next_is, value } ->
+      {:next_is, value} ->
         assert value == 1
     end
   end
@@ -83,7 +84,7 @@ defmodule Test do
 
   test "higher level API interface" do
     count = Ex01.new_counter(5)
-    assert  Ex01.next_value(count) == 5
-    assert  Ex01.next_value(count) == 6
+    assert Ex01.next_value(count) == 5
+    assert Ex01.next_value(count) == 6
   end
 end

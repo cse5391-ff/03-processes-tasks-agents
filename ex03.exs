@@ -68,8 +68,12 @@ defmodule Ex03 do
     # and then concatenate the chunks in the correct order once done
     collection
     |> Enum.chunk_every(chunk_size)
-    |> Enum.map(fn chunk -> Task.async(fn -> Enum.map(chunk, function) end) end)
-    |> Enum.map(fn chunk -> Task.await(chunk) end)
+    |> Enum.map(fn chunk ->
+         Task.async(fn -> Enum.map(chunk, function) end)
+       end)
+    |> Enum.map(fn chunk ->
+         Task.await(chunk)
+       end)
     |> Enum.concat()
   end
 end

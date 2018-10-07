@@ -1,33 +1,30 @@
-
 defmodule Ex02 do
-
   @global_counter __MODULE__
 
   # API
 
   def new_counter(value \\ 0) do
-    { :ok, counter } = Agent.start_link fn -> value end
+    {:ok, counter} = Agent.start_link(fn -> value end)
     counter
   end
 
   def next_value(counter) do
-    Agent.get_and_update counter, &increment_value(&1)
+    Agent.get_and_update(counter, &increment_value(&1))
   end
 
   # Global API
 
   def new_global_counter(value \\ 0) do
-    { :ok, counter } = Agent.start_link fn -> value end, name: @global_counter
+    {:ok, counter} = Agent.start_link(fn -> value end, name: @global_counter)
     counter
   end
 
   def global_next_value() do
-    Agent.get_and_update @global_counter, &increment_value(&1)
+    Agent.get_and_update(@global_counter, &increment_value(&1))
   end
 
   # Internal Implementation
-  defp increment_value(value), do: { value, value + 1 }
-
+  defp increment_value(value), do: {value, value + 1}
 end
 
 ExUnit.start()
@@ -59,12 +56,12 @@ defmodule Test do
   """
 
   test "counter using an agent" do
-    { :ok, counter } = Agent.start_link fn -> 0 end
+    {:ok, counter} = Agent.start_link(fn -> 0 end)
 
-    value  = Agent.get_and_update counter, fn value -> { value, value + 1} end
+    value = Agent.get_and_update(counter, fn value -> {value, value + 1} end)
     assert value == 0
 
-    value  = Agent.get_and_update counter, fn value -> { value, value + 1} end
+    value = Agent.get_and_update(counter, fn value -> {value, value + 1} end)
     assert value == 1
   end
 
@@ -75,8 +72,8 @@ defmodule Test do
 
   test "higher level API interface" do
     count = Ex02.new_counter(5)
-    assert  Ex02.next_value(count) == 5
-    assert  Ex02.next_value(count) == 6
+    assert Ex02.next_value(count) == 5
+    assert Ex02.next_value(count) == 6
   end
 
   @doc """
@@ -87,15 +84,9 @@ defmodule Test do
   """
 
   test "global counter" do
-    Ex02.new_global_counter
-    assert Ex02.global_next_value == 0
-    assert Ex02.global_next_value == 1
-    assert Ex02.global_next_value == 2
+    Ex02.new_global_counter()
+    assert Ex02.global_next_value() == 0
+    assert Ex02.global_next_value() == 1
+    assert Ex02.global_next_value() == 2
   end
 end
-
-
-
-
-
-
