@@ -1,6 +1,8 @@
 
 defmodule Ex02 do
 
+  @global_counter __MODULE__
+
   # API
 
   def new_counter(value \\ 0) do
@@ -15,12 +17,12 @@ defmodule Ex02 do
   # Global API
 
   def new_global_counter(value \\ 0) do
-    { :ok, counter } = Agent.start_link fn -> value end, name: @pid
+    { :ok, counter } = Agent.start_link fn -> value end, name: @global_counter
     counter
   end
 
   def global_next_value() do
-    Agent.get_and_update @pid, &increment_value(&1)
+    Agent.get_and_update @global_counter, &increment_value(&1)
   end
 
   # Internal Implementation
