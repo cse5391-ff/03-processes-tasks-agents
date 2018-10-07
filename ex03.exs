@@ -87,13 +87,13 @@ defmodule Ex03 do
   # Wrapper funcitons
 
   @spec handle_task(list(), fun()) :: any()
-  defp handle_task(list, func) do
-    Task.async(fn -> Enum.map(list, func) end)
+  defp handle_task(chunked, function) do
+    Task.async(fn -> Enum.map(chunked, function) end)
   end
 
   @spec await_task(any()) :: any()
-  defp await_task(task) do
-    Task.await(task)
+  defp await_task(chunk) do
+    Task.await(chunk)
   end
 
 end
