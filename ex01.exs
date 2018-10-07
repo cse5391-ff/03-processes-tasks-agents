@@ -25,6 +25,22 @@ defmodule Ex01 do
           blank lines, vertical alignment
   """
 
+  # API
+
+  def new_counter(value \\ 0) do
+    spawn Ex01, :counter, [value]
+  end
+
+  def next_value(count) do
+    send count, { :next, self() }
+
+    receive do
+      {:next_is, value} ->
+        value
+    end
+
+  end
+
   # Implementation
 
   def counter(value \\ 0) do
@@ -65,9 +81,9 @@ defmodule Test do
   # Now we add two new functions to Ex01 that wrap the use of
   # that counter function, making the overall API cleaner
 
-  # test "higher level API interface" do
-  #   count = Ex01.new_counter(5)
-  #   assert  Ex01.next_value(count) == 5
-  #   assert  Ex01.next_value(count) == 6
-  # end
+  test "higher level API interface" do
+    count = Ex01.new_counter(5)
+    assert  Ex01.next_value(count) == 5
+    assert  Ex01.next_value(count) == 6
+  end
 end
