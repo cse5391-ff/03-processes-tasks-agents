@@ -9,8 +9,22 @@ defmodule Ex02 do
   end
 
   def next_value(counter) do
-    Agent.get_and_update counter, fn value -> { value, value + 1} end
+    Agent.get_and_update counter, &increment_value(&1)
   end
+
+  # Global API
+
+  def new_global_counter(value \\ 0) do
+    { :ok, counter } = Agent.start_link fn -> value end, name: @pid
+    counter
+  end
+
+  def global_next_value() do
+    Agent.get_and_update @pid, &increment_value(&1)
+  end
+
+  # Internal Implementation
+  defp increment_value(value), do: { value, value + 1 }
 
 end
 
@@ -70,12 +84,12 @@ defmodule Test do
   that agent into calls to `global_next_value`?
   """
 
-  # test "global counter" do
-  #   Ex02.new_global_counter
-  #   assert Ex02.global_next_value == 0
-  #   assert Ex02.global_next_value == 1
-  #   assert Ex02.global_next_value == 2
-  # end
+  test "global counter" do
+    Ex02.new_global_counter
+    assert Ex02.global_next_value == 0
+    assert Ex02.global_next_value == 1
+    assert Ex02.global_next_value == 2
+  end
 end
 
 
