@@ -61,10 +61,10 @@ defmodule Test do
   test "counter using an agent" do
     { :ok, counter } = Agent.start_link fn -> 0 end
 
-    value   = Agent.get_and_update counter, fn value -> { value, value + 1} end
+    value  = Agent.get_and_update counter, fn value -> { value, value + 1} end
     assert value == 0
 
-    value   = Agent.get_and_update counter, fn value -> { value, value + 1} end
+    value  = Agent.get_and_update counter, fn value -> { value, value + 1} end
     assert value == 1
   end
 
