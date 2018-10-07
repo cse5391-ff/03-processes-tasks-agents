@@ -62,14 +62,13 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    collection                       # [1, 2, 3, 4, 5, 6] 
-    |> to_n_chunks(process_count)    # [[1, 2], [3, 4], [5, 6]]
-    |> split_maps()                  # map([1,2]) ; map([3,4]) ; map([5,6])
-    |> spawn_mappers(function)
+    collection                   # [1, 2, 3, 4, 5, 6] 
+    |> to_chunks(process_count)  # [[1, 2], [3, 4], [5, 6]]
+    |> spawn_mappers(function)   # map([1,2]) ; map([3,4]) ; map([5,6])
     |> combine_results()               
   end
 
-  defp to_n_chunks(collection, process_count) do
+  defp to_chunks(collection, process_count) do
 
     # Worst case: n-1 processors at full capacity, 1 very underutilized
     # Want to evenly disperse items to processes.
@@ -77,31 +76,28 @@ defmodule Ex03 do
     #    enum count   501    502    503    504
     #    processors    3      -      -      -
     #     quotient    167   167.33 167.66  168
+    #     remainder    0      1      2      0
     #
-    #        p1       167    168    168    168
-    #        p2       167    167    168    168
+    #        p1       167   *168   *168    168
+    #        p2       167    167   *168    168
     #        p3       167    167    167    168
 
     # Divide collection count by processors.
-    # int val -> chunk_every(val)
-    # float vals: val + m/n -> m processors gets extra 1
+                              
+    # remainder == 0: Enum.chunk_every(quotient)
+    # remainder  > 0: Enum.chunk_every(quotient + 1)
     
-    chunk_size = Enum.count(collection) |> div(process_count)
-    remainder  = Enum.count(collection) |> rem(process_count)
+    quotient  = Enum.count(collection) |> div(process_count)
+    remainder = Enum.count(collection) |> rem(process_count)
 
-    cond do
-      remainder > 0 ->
-        
-      true -> 
-        collection 
-        |> Enum.chunk_every(chunk_size)
-    end
+    split_into_chunks(collection, remainder, quotient)
 
   end
 
-  defp split_maps(chunks, map_func) do
+  # 
 
-  end
+  defp split_into_chunks(collection, _remainder = 0, quotient), do: Enum.chunk_every(quotient)
+  defp split_into_chunks(collection,  remainder,     quotient), do: Enum.chunk_every(quotient + 1)
 
   defp spawn_mappers(function) do
     current = self()
