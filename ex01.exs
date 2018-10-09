@@ -85,10 +85,21 @@ defmodule Test do
   # Now we add two new functions to Ex01 that wrap the use of
   # that counter function, making the overall API cleaner
 
-  test "higher level API interface" do
+  test "higher level API interface with passed in value" do
     count = Ex01.new_counter(5)
     assert  Ex01.next_value(count) == 5
     assert  Ex01.next_value(count) == 6
+    assert  Ex01.next_value(count) == 7
+    assert  Ex01.next_value(count) == 8
+  end
+
+  test "higher level API interface with default value" do
+    count = Ex01.new_counter()
+    assert  Ex01.next_value(count) == 0
+    Ex01.next_value(count)
+    assert  Ex01.next_value(count) == 2
+    Ex01.next_value(count)
+    assert  Ex01.next_value(count) == 4
   end
 
 end
