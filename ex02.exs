@@ -47,6 +47,7 @@ defmodule Test do
     value   = Agent.get(counter, &( &1 ))
     assert value == 0
   
+    # value    = Agent.get_and_update(pid, &(&1 + 1))
     Agent.update(counter, &(&1 + 1))
     value    = Agent.get(counter, &( &1 ))
     assert value == 1
