@@ -36,11 +36,15 @@ defmodule Ex01 do
   end
 
   def new_counter(n) do
-
+    spawn Ex01, :counter, [n]
   end
 
-  def next_value(value) do
-
+  def next_value(counter_pid) do
+    send counter_pid, { :next, self() }
+    receive do
+      { :next_is, value } ->
+        value
+    end
   end
 
 end
@@ -66,7 +70,7 @@ defmodule Test do
     receive do
       { :next_is, value } ->
         assert value == 1
-      after 500 ->
+      after 5_000 ->
         IO.puts "The counter has gone away"
     end
   end
