@@ -25,7 +25,7 @@ defmodule Ex01 do
         2 is the program well laid out,  appropriately using indentation,
           blank lines, vertical alignment
   """
-  
+
   def new_counter(value) do
     spawn Ex01, :counter, [value]
   end
@@ -34,7 +34,7 @@ defmodule Ex01 do
     send count, { :next, self() }
     receive do
       { :next_is, value } ->
-      value
+        value
     end
   end
 
