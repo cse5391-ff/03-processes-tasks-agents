@@ -62,7 +62,19 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    processed_collection = collection
+    |> split(process_count)
+    |> apply_map(function)
+    IO.puts processed_collection
+  end
+
+  def split(collection, process_count) do
+    subset = collection
+    |> Enum.chunk_every(Enum.count(collection) |> div(process_count))
+  end
+
+  def apply_map(subset, function) do
+    resultant_subset = Enum.map(subset, function)
   end
 
 end
