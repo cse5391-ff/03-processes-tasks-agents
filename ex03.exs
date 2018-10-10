@@ -61,8 +61,22 @@ defmodule Ex03 do
 
   """
 
+  defp spawn_worker(chunk_of_work, function) do
+    Task.async(fn -> Enum.map(chunk_of_work, function) end)
+  end
+
+  defp join_worker(chunk_of_work) do
+    Task.await(chunk_of_work)
+  end
+
   def pmap(collection, process_count, function) do
-    « your code here »
+    coll_size  = Enum.count(collection)
+    chunk_size = Integer.floor_div(coll_size, process_count)
+    collection
+      |> Enum.chunk_every(chunk_size)
+      |> Enum.map(&(spawn_worker(&1, function)))
+      |> Enum.map(&(join_worker(&1)))
+      |> Enum.concat()
   end
 
 end
