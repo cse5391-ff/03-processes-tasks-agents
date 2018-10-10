@@ -62,7 +62,7 @@ defmodule Ex03 do
   """
 
   defp spawn_worker(chunk_of_work, function) do
-    Task.async(fn() -> Enum.map(chunk_of_work, function) end)
+    Task.async(fn -> Enum.map(chunk_of_work, function) end)
   end
 
   defp join_worker(chunk_of_work) do
