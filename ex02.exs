@@ -3,13 +3,23 @@ defmodule Ex02 do
   use Agent
 
   def new_counter(value \\ 0) do
-    { :ok, pid } = Agent.start_link(fn -> value end, name: __MODULE__)
+    { :ok, pid } = Agent.start_link(fn -> value end, [])
     pid
   end
 
   def next_value(counter) do
     curr = Agent.get(counter, fn(state) -> state end)
     Agent.update(counter, fn(state) -> state + 1 end)
+    curr
+  end
+
+  def new_global_counter(value \\ 0) do
+    Agent.start_link(fn -> value end, name: :global_counter)
+  end
+
+  def global_next_value do
+    curr = Agent.get(:global_counter, fn(state) -> state end)
+    Agent.update(:global_counter, fn(state) -> state + 1 end)
     curr
   end
 
@@ -74,12 +84,13 @@ defmodule Test do
   that agent into calls to `global_next_value`?
   """
 
-  # test "global counter" do
-  #   Ex02.new_global_counter
-  #   assert Ex02.global_next_value == 0
-  #   assert Ex02.global_next_value == 1
-  #   assert Ex02.global_next_value == 2
-  # end
+  test "global counter" do
+    Ex02.new_global_counter
+    assert Ex02.global_next_value == 0
+    assert Ex02.global_next_value == 1
+    assert Ex02.global_next_value == 2
+  end
+
 end
 
 
