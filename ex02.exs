@@ -1,6 +1,15 @@
 
 defmodule Ex02 do
 
+  def new_counter(value \\ 0) do
+    { :ok, agent } = Agent.start_link(fn -> value end)
+    agent
+  end
+  
+  def next_value(count_pid) do
+    Agent.get_and_update(count_pid, &{ &1, &1 + 1 })
+  end
+  
 end
 
 ExUnit.start()
@@ -47,11 +56,11 @@ defmodule Test do
   top of this file to make those tests run.
   """
 
-  # test "higher level API interface" do
-  #   count = Ex02.new_counter(5)
-  #   assert  Ex02.next_value(count) == 5
-  #   assert  Ex02.next_value(count) == 6
-  # end
+  test "higher level API interface" do
+    count = Ex02.new_counter(5)
+    assert  Ex02.next_value(count) == 5
+    assert  Ex02.next_value(count) == 6
+  end
 
   @doc """
   Last (for this exercise), we'll create a global counter by adding
@@ -66,10 +75,5 @@ defmodule Test do
   #   assert Ex02.global_next_value == 1
   #   assert Ex02.global_next_value == 2
   # end
+  
 end
-
-
-
-
-
-
