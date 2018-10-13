@@ -3,25 +3,25 @@ defmodule Ex02 do
   @name __MODULE__
 
   def new_counter(value \\ 0) do
-    { :ok, counter } = Agent.start_link fn -> value end
-    counter
+    { :ok, counter } = Agent.start_link fn -> value end   #create new agent process with a value
+    counter                                               #and return the pid
   end
 
   def next_value(counter_pid) do
-    value = Agent.get(counter_pid, fn number -> number end)
-    Agent.update(counter_pid, fn _ -> value + 1 end)
-    value
+    value = Agent.get(counter_pid, fn number -> number end)   #get current value using the pid from the previous method
+    Agent.update(counter_pid, fn _ -> value + 1 end)          #add one to value and update the agent
+    value                                                     #return the "before +1" value
   end
   
   def new_global_counter() do
-    {:ok, _} = Agent.start_link( fn -> 0 end, name: @name)
+    {:ok, _} = Agent.start_link( fn -> 0 end, name: @name)    #create new agent process with global name
   end
 
 
   def global_next_value() do
-    value = Agent.get(@name, fn number -> number end)
-    Agent.update(@name, fn _ -> value + 1 end)
-    value
+    value = Agent.get(@name, fn number -> number end)   #retrieve pid and value from global variable
+    Agent.update(@name, fn _ -> value + 1 end)          #update pid and value with 1
+    value                                               #return the value from before 1 was added. 
   end
 end
 
