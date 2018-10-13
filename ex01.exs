@@ -26,6 +26,10 @@ defmodule Ex01 do
         2 is the program well laid out,  appropriately using indentation,
           blank lines, vertical alignment
   """
+
+  #######
+  # API #
+  #######
   
   def new_counter(value \\ 0) do
     spawn Ex01, :counter, [ value ]
@@ -36,6 +40,11 @@ defmodule Ex01 do
     { :next_is, value } = get_response()
     value
   end
+  
+
+  ##################
+  # Implementation #
+  ##################
 
   def counter(value \\ 0) do
     receive do     
