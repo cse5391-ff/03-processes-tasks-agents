@@ -34,15 +34,15 @@ defmodule Ex03 do
   function, but with each map running in a separate process.
 
   Useful functions include `Enum.count/1`, `Enum.chunk_every/4` and
- `Enum.concat/1`.
+  `Enum.concat/1`.
 
- (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
+  (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
 
   ------------------------------------------------------------------
   ## Marks available: 30
 
       Pragmatics
-        4  does the code compile and run
+        4 does the code compile and run
         5	does it produce the correct results on any valid data
 
       Tested
@@ -62,7 +62,28 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection
+      |> split_collection(process_count)
+      |> Enum.map(&apply_async_function(&1, function)) 
+      |> Enum.map(&Task.await(&1))
+      |> Enum.concat()
+  end
+
+  defp split_collection(collection, process_count) do
+    chunk_size = Enum.count(collection) |> div(process_count)
+    collection |> split_with_size(chunk_size)
+  end
+
+  defp split_with_size(collection, 0) do
+    collection |> Enum.chunk_every(1)
+  end
+
+  defp split_with_size(collection, chunk_size) do
+    collection |> Enum.chunk_every(chunk_size)
+  end
+
+  defp apply_async_function(collection, function) do
+    Task.async(fn -> Enum.map(collection, function) end)
   end
 
 end
