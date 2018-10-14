@@ -9,9 +9,9 @@ defmodule Ex02 do
   end
 
   def next_value(counter_pid) do
-    Agent.get_and_update(counter_pid, fn val -> 
-      {val + 1, val}
-    end)
+    old_value = Agent.get(counter_pid, &(&1))
+    Agent.update(counter_pid, &(&1 + 1))
+    old_value
   end
 
   def new_global_counter(initial_value \\ 0) do
@@ -19,9 +19,9 @@ defmodule Ex02 do
   end
 
   def global_next_value do
-    Agent.get_and_update(@global_count, fn val -> 
-      {val + 1, val}
-    end)
+    old_value = Agent.get(@global_count, &(&1))
+    Agent.update(@global_count, &(&1 + 1))
+    old_value
   end
 end
 

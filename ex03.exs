@@ -63,9 +63,13 @@ defmodule Ex03 do
 
   def pmap(collection, process_count, function) do
     extended_collection = []
-    processed_collection = collection
+    chunked_collection = collection
     |> split(process_count)
-    |> Enum.at(0)
+  
+    process = send me, {self(), }
+    collection |>
+    
+    processed_collection = chunked_collection
     |> apply_map(function)
     |> merge(extended_collection)
     IO.puts processed_collection
@@ -99,9 +103,9 @@ defmodule TestEx03 do
     assert pmap(1..10, 1, &(&1+1)) == 2..11 |> Enum.into([])
   end
 
-  # test "pmap with 2 processes" do
-  #   assert pmap(1..10, 2, &(&1+1)) == 2..11 |> Enum.into([])
-  # end
+  test "pmap with 2 processes" do
+    assert pmap(1..10, 2, &(&1+1)) == 2..11 |> Enum.into([])
+  end
 
   # test "pmap with 3 processes (doesn't evenly divide data)" do
   #   assert pmap(1..10, 3, &(&1+1)) == 2..11 |> Enum.into([])
