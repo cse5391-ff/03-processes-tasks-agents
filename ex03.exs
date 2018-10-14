@@ -34,9 +34,9 @@ defmodule Ex03 do
   function, but with each map running in a separate process.
 
   Useful functions include `Enum.count/1`, `Enum.chunk_every/4` and
- `Enum.concat/1`.
+  `Enum.concat/1`.
 
- (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
+  (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
 
   ------------------------------------------------------------------
   ## Marks available: 30
@@ -62,7 +62,12 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    chunk_size = get_chunk_size(collection, process_count)
+    chunks = Enum.chunk_every(collection, chunk_size)
+  end
+
+  def get_chunk_size(collection, process_count) do
+    Enum.count(collection) |> div(process_count)
   end
 
 end
@@ -72,6 +77,12 @@ ExUnit.start
 defmodule TestEx03 do
   use ExUnit.Case
   import Ex03
+
+  test "get chunk size calculation" do
+    assert get_chunk_size(1..10, 3) == 3
+    assert get_chunk_size(1..12, 3) == 4
+    assert get_chunk_size(1..7, 8) == 0
+  end
 
   test "pmap with 1 process" do
     assert pmap(1..10, 1, &(&1+1)) == 2..11 |> Enum.into([])
