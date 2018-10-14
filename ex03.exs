@@ -34,9 +34,9 @@ defmodule Ex03 do
   function, but with each map running in a separate process.
 
   Useful functions include `Enum.count/1`, `Enum.chunk_every/4` and
- `Enum.concat/1`.
+  `Enum.concat/1`.
 
- (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
+  (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
 
   ------------------------------------------------------------------
   ## Marks available: 30
@@ -59,10 +59,52 @@ defmodule Ex03 do
       Use of language and libraries
         5 elegant use of language features or libraries
 
+
+
+  Your mission is to implement a function
+
+  pmap(collection, process_count, func)
+
+  This will take the collection, split it into n chunks, where n is
+  the process count, and then run each chunk through a regular map
+  function, but with each map running in a separate process.
   """
 
+  # Steps:
+  # 1. Chunk the collection
+  # 2. Apply function to each part of the chunk, spawn async tasks with function
+  # 3. Wait for for work
+  # 4. Concatenate it back
+
+  # API process map function that takes a list of data, # processes, and function
+  # to apply across list.
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection
+    |> Enum.chunk_every(process_count)
+    |> begin_chunked_work(function)
+    |> await_chunked_work()
+    |> Enum.concat()
+  end
+
+  # At this point, a list of chunks will be fed in, as well as the function
+  # that will be applied across each chunk.
+  def begin_chunked_work(all_chunks, func) do
+    Enum.map(all_chunks, &start_chunked_task(&1, func))
+  end
+
+  # Handler function that takes ONE chunk and spawns a task for the chunk
+  def start_chunked_task(chunk, func) do
+    Task.async(fn -> Enum.map(chunk, func) end)
+  end
+
+  # Takes a list of chunked tasks and awaits a reply from each one (using map).
+  def await_chunked_work(all_chunks) do
+    Enum.map(all_chunks, &await_single_chunk/1)
+  end
+
+  # Hanlder function that awaits an INDIVIDUAL chunk.
+  def await_single_chunk(chunk) do
+    Task.await(chunk)
   end
 
 end
