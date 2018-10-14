@@ -11,6 +11,14 @@ defmodule Ex02 do
     Agent.get_and_update(counter, fn state -> { state, state + 1 } end)
   end
 
+  def new_global_counter(value \\ 0) do
+    Agent.start_link(fn -> value end, name: __MODULE__)
+  end
+
+  def global_next_value do
+    Agent.get_and_update(__MODULE__, fn state -> { state, state + 1 } end)
+  end
+
 end
 
 ExUnit.start()
@@ -74,12 +82,21 @@ defmodule Test do
   that agent into calls to `global_next_value`?
   """
 
-  # test "global counter" do
-  #   Ex02.new_global_counter
-  #   assert Ex02.global_next_value == 0
-  #   assert Ex02.global_next_value == 1
-  #   assert Ex02.global_next_value == 2
-  # end
+  test "global counter with default value" do
+    Ex02.new_global_counter
+    assert Ex02.global_next_value == 0
+    assert Ex02.global_next_value == 1
+    assert Ex02.global_next_value == 2
+  end
+
+  test "global counter with user-defined parameter and multiple calls" do
+    Ex02.new_global_counter(10)
+    assert Ex02.global_next_value == 10
+    Ex02.global_next_value
+    assert Ex02.global_next_value == 12
+    Ex02.global_next_value
+    assert Ex02.global_next_value == 14
+  end
 end
 
 
