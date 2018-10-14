@@ -62,35 +62,25 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    extended_collection = []
-    chunked_collection = collection
+    collection
     |> split(process_count)
-  
-    process = send me, {self(), }
-    collection |>
-    
-    processed_collection = chunked_collection
-    |> apply_map(function)
-    |> merge(extended_collection)
-    IO.puts processed_collection
-    processed_collection
+    |> Enum.map(&apply_map(&1, function))
+    |> Enum.map(&await_split((&1)))
+    |> Enum.concat()
   end
 
   def split(collection, process_count) do
-    subset = collection
+    collection
     |> Enum.chunk_every(collection |> Enum.count |> div(process_count))
-  IO.puts collection |> Enum.count |> div(process_count)
-  subset
   end
 
-  def apply_map(subset, function) do
-    resultant_subset = subset |> Enum.map(function)
+  def apply_map(chunked_collection, function) do
+    Task.async(fn -> Enum.map(chunked_collection, function) end)
   end
 
-  def merge(appendage, extended_collection) do
-    extended_collection |> Enum.concat(appendage)
+  def await_split(split_collection) do
+    Task.await(split_collection)
   end
-
 end
 
 
@@ -107,22 +97,22 @@ defmodule TestEx03 do
     assert pmap(1..10, 2, &(&1+1)) == 2..11 |> Enum.into([])
   end
 
-  # test "pmap with 3 processes (doesn't evenly divide data)" do
-  #   assert pmap(1..10, 3, &(&1+1)) == 2..11 |> Enum.into([])
-  # end
+  test "pmap with 3 processes (doesn't evenly divide data)" do
+    assert pmap(1..10, 3, &(&1+1)) == 2..11 |> Enum.into([])
+  end
 
-  # # The following test will only pass if your computer has
-  # # multiple processors.
-  # test "pmap actually reduces time" do
-  #   range = 1..1_000_000
-  #   # random calculation to burn some cpu
-  #   calc  = fn n -> :math.sin(n) + :math.sin(n/2) + :math.sin(n/4)  end
+  # The following test will only pass if your computer has
+  # multiple processors.
+  test "pmap actually reduces time" do
+    range = 1..1_000_000
+    # random calculation to burn some cpu
+    calc  = fn n -> :math.sin(n) + :math.sin(n/2) + :math.sin(n/4)  end
 
-  #   { time1, result1 } = :timer.tc(fn -> pmap(range, 1, calc) end)
-  #   { time2, result2 } = :timer.tc(fn -> pmap(range, 2, calc) end)
+    { time1, result1 } = :timer.tc(fn -> pmap(range, 1, calc) end)
+    { time2, result2 } = :timer.tc(fn -> pmap(range, 2, calc) end)
 
-  #   assert result2 == result1
-  #   assert time2 < time1 * 0.8
-  # end
+    assert result2 == result1
+    assert time2 < time1 * 0.8
+  end
 
 end
