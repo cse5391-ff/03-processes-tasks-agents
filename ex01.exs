@@ -27,21 +27,27 @@ defmodule Ex01 do
           blank lines, vertical alignment
   """
 
-  # API
+  ### API functions to wrap "counter"
+
+  # Takes initial value and spawns counter process
   def new_counter(starting) do
     spawn(Ex01, :counter, [starting])
   end
 
+  # Increment function to process pid & message
   def next_value(pid) do
     send pid, { :next, self() }
 
     receive do
       { :next_is, value } ->
         value
-      end
+    end
 
+  # endmodule Ex01
   end
 
+
+  # Counter function takes value and increments it
   def counter(value \\ 0) do
     receive do
       { :next, pid } ->
@@ -50,6 +56,8 @@ defmodule Ex01 do
 
     counter(value + 1)
   end
+
+
 end
 
 ExUnit.start()

@@ -1,23 +1,27 @@
 
 defmodule Ex02 do
 
-  # For global usage
+  # For global counter API usage
   @global_count __MODULE__
 
+  ### High level API for counting utilizing Agent functions
+
+  # New counter function that creates new process with initial value as state
   def new_counter(initial_value \\ 0) do
     { :ok, pid } = Agent.start_link(fn -> initial_value end)
     pid
   end
 
+  # Takes state, gets it, returns it, and then post-increments value.
   def next_value(pid) do
     Agent.get_and_update(pid, fn state ->
       {state, state + 1}
     end)
   end
 
+  ### API for global counter implementation
   def new_global_counter() do
-    { :ok, pid } = Agent.start_link(fn -> 0 end,
-                                    name: @global_count)
+    { :ok, pid } = Agent.start_link(fn -> 0 end, name: @global_count)
     pid
   end
 
@@ -57,17 +61,25 @@ defmodule Test do
   """
 
   test "counter using an agent" do
+
+    # Here we hardcode a value for zero because we are doing it inline
+    # Begins a counter with zero
     { :ok, counter } = Agent.start_link(fn -> 0 end)
 
+    # Gets state of value and post-increments
     value   = Agent.get_and_update(counter, fn state ->
       {state, state + 1}
     end)
     assert value == 0
 
+    # As we can see by the assertion above, the incrementation work
+    # begins in the "update" portion after we get the current state.
     value   = Agent.get_and_update(counter, fn state ->
       {state, state + 1}
     end)
     assert value == 1
+
+    # After this point, value should be 2 if we were to get the value.
   end
 
   @doc """

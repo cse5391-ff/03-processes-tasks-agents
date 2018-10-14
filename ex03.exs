@@ -76,6 +76,8 @@ defmodule Ex03 do
   # 3. Wait for for work
   # 4. Concatenate it back
 
+  # API process map function that takes a list of data, # processes, and function
+  # to apply across list.
   def pmap(collection, process_count, function) do
     collection
     |> Enum.chunk_every(process_count)
