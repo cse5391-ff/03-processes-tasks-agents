@@ -76,10 +76,10 @@ defmodule Ex03 do
   end
 
   def get_result(chunks, function) do
-    Enum.reduce(chunks, [], fn chunk, acc -> 
-      task = Task.async(fn -> Enum.map(chunk, function) end)
-      Enum.concat(acc, Task.await(task))
+    Enum.map(chunks, fn chunk -> 
+      Task.async(fn -> Enum.map(chunk, function) end)
     end)
+      |> Enum.reduce([], fn task, acc -> Enum.concat(acc, Task.await(task)) end)
   end
 
 end
