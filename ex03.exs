@@ -34,9 +34,9 @@ defmodule Ex03 do
   function, but with each map running in a separate process.
 
   Useful functions include `Enum.count/1`, `Enum.chunk_every/4` and
- `Enum.concat/1`.
+  `Enum.concat/1`.
 
- (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
+  (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
 
   ------------------------------------------------------------------
   ## Marks available: 30
@@ -61,8 +61,121 @@ defmodule Ex03 do
 
   """
 
+  # CHUNKING LOGIC
+  # Worst case: n-1 processors at full capacity, 1 very underutilized
+  # Want to evenly disperse elements to processes.
+
+  #    enum count   501    502    503    504
+  #    processes     3      -      -      -
+  #     quotient    167   167.33 167.66  168
+  #     remainder    0      1      2      0
+  #
+  #        p1       167   *168   *168    168
+  #        p2       167    167   *168    168
+  #        p3       167    167    167    168
+
+  # Divide collection count by processes. Recursively
+  # build list taking chunk at a time.
+                            
+  # when remainder == 0: quotient     -> chunk size
+  # when remainder  > 0: quotient + 1 -> chunk size 
+
   def pmap(collection, process_count, function) do
-    « your code here »
+
+    mappers = spawn_mappers(function, process_count)
+
+    collection                  # [1, 2, 3, 4, 5, 6] 
+    |> to_chunks(process_count) # [[1, 2], [3, 4], [5, 6]]
+    |> delegate_chunks(mappers) # map([1,2]) ; map([3,4]) ; map([5,6])
+    
+    mappers                     # [pid1, pid2, pid3]
+    |> combine_results()        # [[1*, 2*], [3*, 4*], [5*, 6*]]  
+    |> List.flatten()           # [1*, 2*, 3*, 4*, 5*, 6*]   
+
+  end
+
+  def mapper(func_to_apply) do
+    
+    receive do
+      { :map, requester, list } ->
+        mapped_list = list |> Enum.map(func_to_apply)
+        send(requester, {:mapped, self(), mapped_list})
+    end
+
+  end
+
+  defp spawn_mappers(_function, _process_count = 0), do: []
+
+  defp spawn_mappers(function, process_count) do
+    mapper_pid = spawn(Ex03, :mapper, [ function ])
+    [ mapper_pid | spawn_mappers(function, process_count - 1) ]
+  end
+
+  defp to_chunks(collection, process_count) do
+    state = build_chunking_state(collection, process_count)
+    collection |> split_into_chunks(state)
+  end
+
+  defp build_chunking_state(collection, _process_count = 0) do
+    %{
+      size:          collection |> Enum.count(),
+      process_count: 0
+    }
+  end
+
+  defp build_chunking_state(collection, process_count) do
+
+    collection_size = collection |> Enum.count()
+
+    %{
+      size:          collection_size,
+      remainder:     collection_size |> rem(process_count),
+      quotient:      collection_size |> div(process_count),
+      process_count: process_count
+    }
+
+  end
+
+  defp split_into_chunks(_collection, %{process_count: count, size: size}) 
+    when count == 0 or size == 0
+  do
+    []
+  end
+
+  defp split_into_chunks(collection, state = %{}) do
+
+    chunk_size = get_chunk_size(state)
+    { chunk, new_collection } = collection |> Enum.split(chunk_size)
+
+    new_state = new_collection |> build_chunking_state(state.process_count - 1)
+
+    [ chunk | split_into_chunks(new_collection, new_state) ]
+
+  end
+
+  defp get_chunk_size(%{quotient: quotient, remainder: 0}), do: quotient
+  defp get_chunk_size(%{quotient: quotient}),               do: quotient + 1
+
+  defp delegate_chunks([], []) do
+    :delegation_complete
+  end
+
+  defp delegate_chunks([ chunk | rest_of_chunks ], [ mapper | rest_of_mappers ]) do
+    mapper |> send({:map, self(), chunk})
+    delegate_chunks(rest_of_chunks, rest_of_mappers)
+  end
+
+  defp combine_results([]) do
+    []
+  end
+
+  defp combine_results([mapper | rest_of_mappers]) do
+
+    receive do
+      {:mapped, ^mapper, mapped_chunk} -> 
+        [mapped_chunk | combine_results(rest_of_mappers)]
+    end
+
   end
 
 end
