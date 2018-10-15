@@ -63,11 +63,20 @@ defmodule Ex03 do
 
   def pmap(collection, process_count, function) do
     chunk_size = get_chunk_size(collection, process_count)
-    chunks = Enum.chunk_every(collection, chunk_size)
+    Enum.chunk_every(collection, chunk_size) |> get_result(function)
   end
+
+  # HELPERS - run in caller's process
 
   def get_chunk_size(collection, process_count) do
     Enum.count(collection) |> div(process_count)
+  end
+
+  def get_result(chunks, function) do
+    Enum.reduce(chunks, [], fn chunk, acc -> 
+      task = Task.async(fn -> Enum.map(chunk, function) end)
+      Enum.concat(acc, Task.await(task))
+    end)
   end
 
 end
