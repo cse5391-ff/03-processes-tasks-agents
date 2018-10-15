@@ -104,11 +104,11 @@ defmodule Ex03 do
 
   end
 
-  def spawn_mappers(_function, _process_count = 0) do
+  defp spawn_mappers(_function, _process_count = 0) do
     []
   end
 
-  def spawn_mappers(function, process_count) do
+  defp spawn_mappers(function, process_count) do
 
     mapper_pid = spawn(Ex03, :mapper, [ function ])
 
@@ -116,7 +116,7 @@ defmodule Ex03 do
 
   end
 
-  def to_chunks(collection, process_count) do
+  defp to_chunks(collection, process_count) do
 
     state = collection |> build_chunking_state(process_count)
 
@@ -125,7 +125,7 @@ defmodule Ex03 do
 
   end
 
-  def build_chunking_state(collection, _process_count = 0) do
+  defp build_chunking_state(collection, _process_count = 0) do
 
     %{
       size:          collection |> Enum.count(),
@@ -134,7 +134,7 @@ defmodule Ex03 do
 
   end
 
-  def build_chunking_state(collection, process_count) do
+  defp build_chunking_state(collection, process_count) do
 
     collection_size = collection |> Enum.count()
 
@@ -147,13 +147,13 @@ defmodule Ex03 do
 
   end
 
-  def split_into_chunks(_collection, %{process_count: count, size: size}) 
+  defp split_into_chunks(_collection, %{process_count: count, size: size}) 
     when count == 0 or size == 0
   do
     []
   end
 
-  def split_into_chunks(collection, state = %{}) do
+  defp split_into_chunks(collection, state = %{}) do
 
     chunk_size = get_chunk_size(state)
     { chunk, new_collection } = collection |> Enum.split(chunk_size)
@@ -164,23 +164,23 @@ defmodule Ex03 do
 
   end
 
-  def get_chunk_size(%{quotient: quotient, remainder: 0}), do: quotient
-  def get_chunk_size(%{quotient: quotient}),               do: quotient + 1
+  defp get_chunk_size(%{quotient: quotient, remainder: 0}), do: quotient
+  defp get_chunk_size(%{quotient: quotient}),               do: quotient + 1
 
-  def delegate_chunks([], []) do
+  defp delegate_chunks([], []) do
     :delegation_complete
   end
 
-  def delegate_chunks([ chunk | rest_of_chunks ], [ mapper | rest_of_mappers ]) do
+  defp delegate_chunks([ chunk | rest_of_chunks ], [ mapper | rest_of_mappers ]) do
     mapper |> send({:map, self(), chunk})
     delegate_chunks(rest_of_chunks, rest_of_mappers)
   end
 
-  def combine_results([]) do
+  defp combine_results([]) do
     []
   end
 
-  def combine_results([mapper | rest_of_mappers]) do
+  defp combine_results([mapper | rest_of_mappers]) do
 
     receive do
       {:mapped, ^mapper, mapped_chunk} -> 
