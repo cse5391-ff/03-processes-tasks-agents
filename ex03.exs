@@ -104,34 +104,23 @@ defmodule Ex03 do
 
   end
 
-  defp spawn_mappers(_function, _process_count = 0) do
-    []
-  end
+  defp spawn_mappers(_function, _process_count = 0), do: []
 
   defp spawn_mappers(function, process_count) do
-
     mapper_pid = spawn(Ex03, :mapper, [ function ])
-
     [ mapper_pid | spawn_mappers(function, process_count - 1) ]
-
   end
 
   defp to_chunks(collection, process_count) do
-
-    state = collection |> build_chunking_state(process_count)
-
-    collection 
-    |> split_into_chunks(state)
-
+    state = build_chunking_state(collection, process_count)
+    collection |> split_into_chunks(state)
   end
 
   defp build_chunking_state(collection, _process_count = 0) do
-
     %{
       size:          collection |> Enum.count(),
       process_count: 0
     }
-
   end
 
   defp build_chunking_state(collection, process_count) do
