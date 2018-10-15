@@ -74,7 +74,7 @@ defmodule Ex03 do
     chunk_count = div(Enum.count(collection), process_count)
 
     collection
-    |> Enum.into([])
+    |> Enum.to_list()
     |> Enum.chunk_every(chunk_count)
     |> map_chunks(function)
     |> Enum.map(fn task -> Task.await(task) end)
