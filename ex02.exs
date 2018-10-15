@@ -1,7 +1,30 @@
 
 defmodule Ex02 do
+  @name __MODULE__
 
+  def new_counter(value \\ 0) do
+    { :ok, counter } = Agent.start_link fn -> value end   #create new agent process with a value
+    counter                                               #and return the pid
+  end
+
+  def next_value(counter_pid) do
+    value = Agent.get(counter_pid, fn number -> number end)   #get current value using the pid from the previous method
+    Agent.update(counter_pid, fn _ -> value + 1 end)          #add one to value and update the agent
+    value                                                     #return the "before +1" value
+  end
+  
+  def new_global_counter() do
+    {:ok, _} = Agent.start_link( fn -> 0 end, name: @name)    #create new agent process with global name
+  end
+
+
+  def global_next_value() do
+    value = Agent.get(@name, fn number -> number end)   #retrieve pid and value from global variable
+    Agent.update(@name, fn _ -> value + 1 end)          #update pid and value with 1
+    value                                               #return the value from before 1 was added. 
+  end
 end
+
 
 ExUnit.start()
 
@@ -32,26 +55,28 @@ defmodule Test do
   Replace the placeholders with your code.
   """
 
-  # test "counter using an agent" do
-  #   { :ok, counter } = « your code »
-  # 
-  #   value   = « your code »
-  #   assert value == 0
-  # 
-  #   value   = « your code »
-  #   assert value == 1
-  # end
+  test "counter using an agent" do
+    { :ok, counter } = Agent.start_link fn -> 0 end
+  
+    Agent.update(counter, fn _ -> 0 end)
+    value   = Agent.get(counter, fn number -> number end)
+    assert value == 0
+  
+    Agent.update(counter, fn _ -> value + 1 end)
+    value   = Agent.get(counter, fn number -> number end)
+    assert value == 1
+  end
 
   @doc """
   Next, uncomment this test, and add code to the Ex02 module at the
   top of this file to make those tests run.
   """
 
-  # test "higher level API interface" do
-  #   count = Ex02.new_counter(5)
-  #   assert  Ex02.next_value(count) == 5
-  #   assert  Ex02.next_value(count) == 6
-  # end
+  test "higher level API interface" do
+    count = Ex02.new_counter(5)
+    assert  Ex02.next_value(count) == 5
+    assert  Ex02.next_value(count) == 6
+  end
 
   @doc """
   Last (for this exercise), we'll create a global counter by adding
@@ -60,12 +85,12 @@ defmodule Test do
   that agent into calls to `global_next_value`?
   """
 
-  # test "global counter" do
-  #   Ex02.new_global_counter
-  #   assert Ex02.global_next_value == 0
-  #   assert Ex02.global_next_value == 1
-  #   assert Ex02.global_next_value == 2
-  # end
+  test "global counter" do
+    Ex02.new_global_counter()
+    assert Ex02.global_next_value() == 0
+    assert Ex02.global_next_value() == 1
+    assert Ex02.global_next_value() == 2
+  end
 end
 
 
