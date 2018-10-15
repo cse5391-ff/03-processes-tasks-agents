@@ -62,14 +62,17 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    chunk_size = get_chunk_size(collection, process_count)
+    count = Enum.count(collection)
+    chunk_size = get_chunk_size(count >= process_count, count, process_count)
     Enum.chunk_every(collection, chunk_size) |> get_result(function)
   end
 
-  # HELPERS - run in caller's process
+  def get_chunk_size(true, count, process_count) do
+    div(count, process_count)
+  end
 
-  def get_chunk_size(collection, process_count) do
-    Enum.count(collection) |> div(process_count)
+  def get_chunk_size(false, count, _process_count) do
+    count
   end
 
   def get_result(chunks, function) do
@@ -87,12 +90,6 @@ defmodule TestEx03 do
   use ExUnit.Case
   import Ex03
 
-  test "get chunk size calculation" do
-    assert get_chunk_size(1..10, 3) == 3
-    assert get_chunk_size(1..12, 3) == 4
-    assert get_chunk_size(1..7, 8) == 0
-  end
-
   test "pmap with 1 process" do
     assert pmap(1..10, 1, &(&1+1)) == 2..11 |> Enum.into([])
   end
@@ -103,6 +100,10 @@ defmodule TestEx03 do
 
   test "pmap with 3 processes (doesn't evenly divide data)" do
     assert pmap(1..10, 3, &(&1+1)) == 2..11 |> Enum.into([])
+  end
+
+  test "pmap with more processes than elements" do
+    assert pmap(1..5, 10, &(&1+1)) == 2..6 |> Enum.into([])
   end
 
   # The following test will only pass if your computer has
