@@ -2,44 +2,44 @@ defmodule Ex03 do
 
   @moduledoc """
 
-  `Enum.map` takes a collection, applies a function to each element in
-  turn, and returns a list containing the result. It is an O(n)
-  operation.
+    `Enum.map` takes a collection, applies a function to each element in
+    turn, and returns a list containing the result. It is an O(n)
+    operation.
 
-  Because there is no interaction between each calculation, we could
-  process all elements of the original collection in parallel. If we
-  had one processor for each element in the original collection, that
-  would turn it into an O(1) operation.
+    Because there is no interaction between each calculation, we could
+    process all elements of the original collection in parallel. If we
+    had one processor for each element in the original collection, that
+    would turn it into an O(1) operation.
 
-  However, we don't have that many processors on our machines, so we
-  have to compromise. If we have two processors, we could divide the
-  map into two chunks, process each independently on its own
-  processor, then combine the results.
+    However, we don't have that many processors on our machines, so we
+    have to compromise. If we have two processors, we could divide the
+    map into two chunks, process each independently on its own
+    processor, then combine the results.
 
-  You might think this would halve the elapsed time, but the reality
-  is that the initial chunking of the collection, and the eventual
-  combining of the results both take time. As a result, the speed up
-  will be less that a factor of two. If the work done in the mapping
-  function is time consuming, then the speedup factor will be greater,
-  as the overhead of chunking and combining will be relatively less.
-  If the mapping function is trivial, then parallelizing the code will
-  actually slow it down.
+    You might think this would halve the elapsed time, but the reality
+    is that the initial chunking of the collection, and the eventual
+    combining of the results both take time. As a result, the speed up
+    will be less that a factor of two. If the work done in the mapping
+    function is time consuming, then the speedup factor will be greater,
+    as the overhead of chunking and combining will be relatively less.
+    If the mapping function is trivial, then parallelizing the code will
+    actually slow it down.
 
-  Your mission is to implement a function
+    Your mission is to implement a function
 
-      pmap(collection, process_count, func)
+        pmap(collection, process_count, func)
 
-  This will take the collection, split it into n chunks, where n is
-  the process count, and then run each chunk through a regular map
-  function, but with each map running in a separate process.
+    This will take the collection, split it into n chunks, where n is
+    the process count, and then run each chunk through a regular map
+    function, but with each map running in a separate process.
 
-  Useful functions include `Enum.count/1`, `Enum.chunk_every/4` and
- `Enum.concat/1`.
+    Useful functions include `Enum.count/1`, `Enum.chunk_every/4` and
+  `Enum.concat/1`.
 
- (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
+  (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
 
-  ------------------------------------------------------------------
-  ## Marks available: 30
+    ------------------------------------------------------------------
+    ## Marks available: 30
 
       Pragmatics
         4  does the code compile and run
@@ -62,7 +62,19 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    divided_collection = Enum.chunk_every(collection, process_count)
+    divided_collection
+      |> Enum.map(&start_tasks(&1, function))
+      |> Enum.map(&await_tasks(&1))
+      |> Enum.concat()
+  end
+
+  def start_tasks(collection, function) do
+    Task.async( fn -> Enum.map(collection, function) end )
+  end
+
+  def await_tasks(collection) do
+    Task.await(collection)
   end
 
 end
