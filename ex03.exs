@@ -62,24 +62,35 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    count = Enum.count(collection)
-    chunk_size = get_chunk_size(count >= process_count, count, process_count)
-    Enum.chunk_every(collection, chunk_size) |> get_result(function)
+    collection
+      |> get_chunk_size(process_count)
+      |> divide_work(collection)
+      |> do_parallel_work(function)
   end
 
-  def get_chunk_size(true, count, process_count) do
+  def get_chunk_size(collection, process_count) do
+    count = Enum.count(collection)
+    calculate_chunk_size(count, process_count, count >= process_count)
+  end
+
+  # number of elements in collection >= supplied process count
+  def calculate_chunk_size(count, process_count, true) do
     div(count, process_count)
   end
 
-  def get_chunk_size(false, count, _process_count) do
+  # number of elements in collection < supplied process count
+  def calculate_chunk_size(count, _process_count, false) do
     count
   end
 
-  def get_result(chunks, function) do
-    Enum.map(chunks, fn chunk -> 
-      Task.async(fn -> Enum.map(chunk, function) end)
-    end)
-      |> Enum.reduce([], fn task, acc -> Enum.concat(acc, Task.await(task)) end)
+  def divide_work(chunk_size, collection) do
+    Enum.chunk_every(collection, chunk_size) 
+  end
+
+  def do_parallel_work(chunks, function) do
+    chunks
+      |> Enum.map(&(Task.async(fn -> Enum.map(&1, function) end)))
+      |> Enum.reduce([], &(Enum.concat(&2, Task.await(&1))))
   end
 
 end
