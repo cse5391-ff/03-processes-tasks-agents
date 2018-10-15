@@ -32,7 +32,17 @@ defmodule Ex01 do
       {:next, from} ->
         send(from, {:next_is, value})
     end
-    counter value+1
+    counter value + 1
+  end
+
+  def new_counter(value \\ 0), do: spawn(Ex01, :counter, [value])
+
+  def next_value(count \\ 0) do
+    send(count, {:next, self()})
+     receive do
+      {:next_is, value} ->
+        value
+    end
   end
 
 end
@@ -65,11 +75,11 @@ defmodule Test do
   # Now we add two new functions to Ex01 that wrap the use of
   # that counter function, making the overall API cleaner
 
-  # test "higher level API interface" do
-  #   count = Ex01.new_counter(5)
-  #   assert  Ex01.next_value(count) == 5
-  #   assert  Ex01.next_value(count) == 6
-  # end
+  test "higher level API interface" do
+    count = Ex01.new_counter(5)
+    assert  Ex01.next_value(count) == 5
+    assert  Ex01.next_value(count) == 6
+  end
 
 end
 
