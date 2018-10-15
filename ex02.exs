@@ -3,25 +3,12 @@ defmodule Ex02 do
 
   ### API ###
 
-  def new_counter(initial_value \\ 0) do
-    initial_value 
-    |> make_counter(:standard)
-  end
+  def new_counter(initial_value \\ 0),        do: make_counter(initial_value, :standard)
+  def new_global_counter(initial_value \\ 0), do: make_counter(initial_value, :global)
 
-  def new_global_counter(initial_value \\ 0) do
-    initial_value 
-    |> make_counter(:global)
-  end
+  def next_value(counter), do: counter |> Agent.get_and_update( &{ &1, &1+1 } )
 
-  def next_value(counter) do 
-    counter 
-    |> Agent.get_and_update( &{ &1, &1+1 } )
-  end
-
-  def global_next_value() do
-    __MODULE__ 
-    |> next_value()
-  end
+  def global_next_value(), do: next_value(__MODULE__)
 
   ### Implementation ###
 

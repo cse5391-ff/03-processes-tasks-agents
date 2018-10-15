@@ -32,10 +32,12 @@ defmodule Ex01 do
 
   def next_value(counter) do
 
-    counter 
-    |> send({ :next, self() })
+    counter |> send({ :next, self() })
 
-    receive do { :next_is, value } -> value end
+    receive do 
+      { :next_is, value } -> 
+        value 
+    end
 
   end
   
@@ -43,13 +45,11 @@ defmodule Ex01 do
 
   def counter(value \\ 0) do
 
-    requester = receive do 
-      { :next, requester_pid } -> requester_pid 
+    receive do 
+      { :next, requester } -> 
+        requester |> send({:next_is, value})
+        counter(value + 1)
     end
-
-    send(requester, value)  #    value
-    |> Kernel.+(1)          # |> value + 1
-    |> counter()            # |> kick off recursive call
 
   end
 

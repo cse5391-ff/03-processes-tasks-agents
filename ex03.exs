@@ -88,7 +88,7 @@ defmodule Ex03 do
     |> to_chunks(process_count) # [[1, 2], [3, 4], [5, 6]]
     |> delegate_chunks(mappers) # map([1,2]) ; map([3,4]) ; map([5,6])
     
-    mappers 
+    mappers                     # [pid1, pid2, pid3]
     |> combine_results()        # [[1*, 2*], [3*, 4*], [5*, 6*]]  
     |> List.flatten()           # [1*, 2*, 3*, 4*, 5*, 6*]   
 
@@ -127,10 +127,8 @@ defmodule Ex03 do
 
   def build_chunking_state(collection, _process_count = 0) do
 
-    collection_size = collection |> Enum.count()
-
     %{
-      size:          collection_size,
+      size:          collection |> Enum.count(),
       process_count: 0
     }
 
@@ -158,7 +156,6 @@ defmodule Ex03 do
   def split_into_chunks(collection, state = %{}) do
 
     chunk_size = get_chunk_size(state)
-
     { chunk, new_collection } = collection |> Enum.split(chunk_size)
 
     new_state = new_collection |> build_chunking_state(state.process_count - 1)
