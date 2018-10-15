@@ -34,9 +34,9 @@ defmodule Ex03 do
   function, but with each map running in a separate process.
 
   Useful functions include `Enum.count/1`, `Enum.chunk_every/4` and
- `Enum.concat/1`.
+  `Enum.concat/1`.
 
- (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
+  (If you're runniung an older Elixir, `Enum.chunk_every` may be called `Enum.chunk`.)
 
   ------------------------------------------------------------------
   ## Marks available: 30
@@ -62,7 +62,35 @@ defmodule Ex03 do
   """
 
   def pmap(collection, process_count, function) do
-    « your code here »
+    collection
+      |> get_chunk_size(process_count)
+      |> divide_work(collection)
+      |> do_parallel_work(function)
+  end
+
+  def get_chunk_size(collection, process_count) do
+    count = Enum.count(collection)
+    calculate_chunk_size(count, process_count, count >= process_count)
+  end
+
+  # number of elements in collection >= supplied process count
+  def calculate_chunk_size(count, process_count, true) do
+    div(count, process_count)
+  end
+
+  # number of elements in collection < supplied process count
+  def calculate_chunk_size(count, _process_count, false) do
+    count
+  end
+
+  def divide_work(chunk_size, collection) do
+    Enum.chunk_every(collection, chunk_size) 
+  end
+
+  def do_parallel_work(chunks, function) do
+    chunks
+      |> Enum.map(&(Task.async(fn -> Enum.map(&1, function) end)))
+      |> Enum.reduce([], &(Enum.concat(&2, Task.await(&1))))
   end
 
 end
@@ -83,6 +111,10 @@ defmodule TestEx03 do
 
   test "pmap with 3 processes (doesn't evenly divide data)" do
     assert pmap(1..10, 3, &(&1+1)) == 2..11 |> Enum.into([])
+  end
+
+  test "pmap with more processes than elements" do
+    assert pmap(1..5, 10, &(&1+1)) == 2..6 |> Enum.into([])
   end
 
   # The following test will only pass if your computer has
